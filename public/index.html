@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HospitalGo</title>
+    <link href="./style.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1 class="title">HospitalGo</h1>
+    <div id="homepage">
+        <h1>Find Hospitals near you</h1>
+        <div id="hospitals"></div>
+    </div>
+
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/react@15/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+
+    <!-- create react component -->
+    <script type="text/babel">
+        var Hospitals = React.createClass({
+            getInitialState: function(){
+                return({
+                    hospitals: []
+                });
+            },
+            render: function(){
+                var hospitals = this.state.hospitals;
+                hospitals = hospitals.map(function(hospital, index){
+                    return(
+                        <tr key={index}>
+                            <td className="name">{hospital.name}</td>
+                            <td className="rank">{hospital.beds}</td>
+                            <td className="rank">{hospital.type}</td>
+                            <td className="dist">{hospital.dist.calculated}</td>
+                        </tr>
+                    );
+                });
+                return(
+                    <div id="hospital-container">
+                        <form id="search" onSubmit={this.handleSubmit}>
+                            <label>Enter your Latitude:</label>
+                            <input type="text" ref="lat" placeholder="latitude" required />
+                            <label>Enter your Longitude:</label>
+                            <input type="text" ref="lng" placeholder="longitude" required />
+                            <input type="submit" value="Find Hospitals" />
+                        </form>
+                        <tr>
+                            <th>NAME</th>
+                            <th>BEDS</th>
+                            <th>TYPE</th>
+                            <th>DISTANCE IN KMs</th>
+                        </tr>
+                        {hospitals}
+                    </div>
+                );
+            },
+            handleSubmit: function(e){
+                e.preventDefault();
+                var lng = this.refs.lng.value;
+                var lat = this.refs.lat.value;
+
+                fetch('/api/hospitals?lng=' + lng + '&lat=' + lat).then(function(data){
+                    return data.json();
+                }).then( json => {
+                    this.setState({
+                        hospitals: json
+                    });
+                    console.log(json);
+                });
+            }
+        });
+        ReactDOM.render(<Hospitals />, document.getElementById('hospitals'));
+        </script>
+
+</body>
+</html>
